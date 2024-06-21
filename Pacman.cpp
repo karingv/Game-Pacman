@@ -189,11 +189,6 @@ unsigned short Pacman::get_power_pellet_timer() const
 // Dibuja Pacman
 void Pacman::draw(bool i_victory, sf::RenderWindow &i_window)
 {
-	unsigned char frame = static_cast<unsigned char>(floor(animation_timer / static_cast<float>(PACMAN_ANIMATION_SPEED)));
-	sf::Sprite sprite;
-	sf::Texture texture;
-	sprite.setPosition(position.x, position.y);
-
 	sf::CircleShape pacman_shape(CELL_SIZE / 2);
 	pacman_shape.setPosition(position.x, position.y);
 
@@ -654,6 +649,7 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 		}
 	}
 }
+
 // Actualiza el objetivo del fantasma seg�n su modo y el estado de Pacman
 void Ghost::update_target(unsigned char i_pacman_direction, const Position &i_ghost_0_position, const Position &i_pacman_position)
 {

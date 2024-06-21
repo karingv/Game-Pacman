@@ -116,18 +116,17 @@ int main()
 					pacman.set_animation_timer(0);
 				}
 			}
-			// Reinicia el juego si se presiona la tecla Enter
-			else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Return)) // Reinicia el juego
+			else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Return)) // Cuando la tecla enter se presiona
 			{
 				game_won = 0;
 
 				if (1 == pacman.get_dead())
 				{
-					level = 0;
+					level = 0; // Cuando muere y presiona enter, se reinicia
 				}
 				else
 				{
-					level++;
+					level++; // Cuando ganase pasa al siguiente nivel
 				}
 
 				map = convert_sketch(map_sketch, ghost_positions, pacman);
@@ -148,7 +147,8 @@ int main()
 
 					ghost_manager.draw(GHOST_FLASH_START >= pacman.get_power_pellet_timer(), window);
 
-					draw_text(0, 0, CELL_SIZE * MAP_HEIGHT, "Nivel: " + std::to_string(1 + level), window);
+					draw_text(1, 0, CELL_SIZE * MAP_HEIGHT, "Nivel: " + std::to_string(1 + level), window);
+					draw_text(0, CELL_SIZE, CELL_SIZE * MAP_HEIGHT + 2, "Puntos: 0", window);
 				}
 
 				pacman.draw(game_won, window);
@@ -157,11 +157,11 @@ int main()
 				{
 					if (1 == game_won)
 					{
-						draw_text(1, 0, 0, "Nivel 2", window);
+						draw_text(1, 0, 0, "Siguiente nivel", window);
 					}
 					else
 					{
-						draw_text(1, 0, 0, "Game over", window);
+						draw_text(1, 0, 0, "Perdiste :c", window);
 					}
 				}
 
