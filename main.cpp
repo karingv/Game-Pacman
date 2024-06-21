@@ -12,9 +12,7 @@ int main()
 	unsigned lag = 0;
 	unsigned char level = 0;
 
-
 	std::chrono::time_point<std::chrono::steady_clock> previous_time;
-
 
 	std::array<std::string, MAP_HEIGHT> map_sketch = {
 		" ################### ",
@@ -37,30 +35,29 @@ int main()
 		" #....#...#...#....# ",
 		" #.######.#.######.# ",
 		" #.................# ",
-		" ################### "
-	};
-	
+		" ################### "};
+
 	// Mapa del juego inicializado con celdas
 	std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> map{};
 
 	// Posiciones iniciales de los fantasmas
 	std::array<Position, 4> ghost_positions;
-	
+
 	sf::Event event;
-	
+
 	// Ventana del juego
 	sf::RenderWindow window(sf::VideoMode(CELL_SIZE * MAP_WIDTH * SCREEN_RESIZE, (FONT_HEIGHT + CELL_SIZE * MAP_HEIGHT) * SCREEN_RESIZE), "Pac-Man", sf::Style::Close);
 	window.setView(sf::View(sf::FloatRect(0, 0, CELL_SIZE * MAP_WIDTH, FONT_HEIGHT + CELL_SIZE * MAP_HEIGHT)));
 
 	GhostManager ghost_manager;
 	Pacman pacman;
-	
-	// Inicializa el generador de números aleatorios
+
+	// Inicializa el generador de nï¿½meros aleatorios
 	srand(static_cast<unsigned>(time(0)));
-	
-	// Convierte el diseño del mapa 
+
+	// Convierte el diseï¿½o del mapa
 	map = convert_sketch(map_sketch, ghost_positions, pacman);
-	
+
 	// Resetea los fantasmas al inicio del juego
 	ghost_manager.reset(level, ghost_positions);
 
@@ -68,12 +65,12 @@ int main()
 	previous_time = std::chrono::steady_clock::now();
 
 	while (1 == window.isOpen())
-	{	
+	{
 
 		unsigned delta_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - previous_time).count();
 		lag += delta_time;
 		previous_time += std::chrono::microseconds(delta_time);
-		
+
 		// Actualiza el juego si ha pasado suficiente tiempo
 		while (FRAME_DURATION <= lag)
 		{
@@ -83,27 +80,27 @@ int main()
 			{
 				switch (event.type)
 				{
-					case sf::Event::Closed:
-					{
-						window.close();
-					}
+				case sf::Event::Closed:
+				{
+					window.close();
+				}
 				}
 			}
-			// Actualiza el estado del juego si no se ha ganado y Pacman no está muerto
+			// Actualiza el estado del juego si no se ha ganado y Pacman no estï¿½ muerto
 			if (0 == game_won && 0 == pacman.get_dead())
 			{
 				game_won = 1;
 				pacman.update(level, map);
 				ghost_manager.update(level, map, pacman);
-				
+
 				// Verifica si quedan pellets en el mapa
-				for (const std::array<Cell, MAP_HEIGHT>& column : map)
+				for (const std::array<Cell, MAP_HEIGHT> &column : map)
 				{
-					for (const Cell& cell : column)
+					for (const Cell &cell : column)
 					{
 						if (Cell::Pellet == cell)
 						{
-							game_won = 0; 
+							game_won = 0;
 							break;
 						}
 					}
@@ -139,7 +136,7 @@ int main()
 
 				pacman.reset();
 			}
-			
+
 			// Dibuja el estado actual del juego
 			if (FRAME_DURATION > lag)
 			{
@@ -173,5 +170,3 @@ int main()
 		}
 	}
 }
-
-
