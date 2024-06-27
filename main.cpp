@@ -146,6 +146,7 @@ int main()
 
 				ghost_manager.reset(level, ghost_positions);
 
+				pacman.reset_points();
 				pacman.reset();
 			}
 
@@ -161,7 +162,7 @@ int main()
 					ghost_manager.draw(GHOST_FLASH_START >= pacman.get_power_pellet_timer(), window);
 
 					draw_text(1, 0, CELL_SIZE * MAP_HEIGHT, "Nivel: " + std::to_string(1 + level), window);
-					draw_text(0, CELL_SIZE, CELL_SIZE * MAP_HEIGHT + 2, "Puntos: 0", window);
+					draw_text(0, CELL_SIZE, CELL_SIZE * MAP_HEIGHT + 2, "Puntos: " + std::to_string(pacman.get_points()), window);
 				}
 
 				pacman.draw(game_won, window);

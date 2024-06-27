@@ -68,6 +68,8 @@ class Pacman
     sf::Sound soundEating;
     sf::Sound soundDying;
 
+    int points = 0;
+
 public:
     Pacman();
 
@@ -82,6 +84,10 @@ public:
     void set_dead(bool i_dead);
     void set_position(short i_x, short i_y);
     void update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map);
+
+    int get_points();
+    void set_points(int new_points);
+    void reset_points();
 
     Position get_position() const;
 

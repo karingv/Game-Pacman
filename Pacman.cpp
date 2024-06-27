@@ -152,11 +152,15 @@ bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y
 				{ // Recoge power pellet
 					output = 1;
 					i_map[x][y] = Cell::Empty;
+					// Añade 50 puntos
+					pacman.set_points(pacman.get_points() + 50);
 				}
 				else if (Cell::Pellet == i_map[x][y])
 				{ // Recoge Pellet
 					i_map[x][y] = Cell::Empty;
 					pacman.playEatingSound();
+					// Añade 10 puntos
+					pacman.set_points(pacman.get_points() + 10);
 				}
 			}
 		}
@@ -360,6 +364,21 @@ void Pacman::loadSounds()
 	soundPowerPellet.setBuffer(bufferPowerPellet);
 	soundEating.setBuffer(bufferEating);
 	soundDying.setBuffer(bufferDying);
+}
+
+int Pacman::get_points()
+{
+	return points;
+}
+
+void Pacman::set_points(int new_points)
+{
+	points = new_points;
+}
+
+void Pacman::reset_points()
+{
+	points = 0;
 }
 
 // Ghost
