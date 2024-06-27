@@ -65,23 +65,18 @@ int main()
 
 	// Obtener la hora actual y almacenarla en una variable.
 	previous_time = std::chrono::steady_clock::now();
-	
+
 	// Cargar sonidos
-    sf::SoundBuffer startBuffer;
-    if (!startBuffer.loadFromFile("Recursos/Audio/startUp.wav"))
-        
-    {
-        return -1; // Manejo de errores
-    }
+	sf::SoundBuffer startBuffer;
+	if (!startBuffer.loadFromFile("Recursos/Audio/startUp.wav"))
+	{
+		return -1; // Manejo de errores
+	}
 
-    sf::Sound startSound(startBuffer);
- 
+	sf::Sound startSound(startBuffer);
 
-    // Reproducir el sonido de inicio
-    //startSound.play();
-    
-    
-
+	// Reproducir el sonido de inicio
+	// startSound.play();
 
 	while (1 == window.isOpen())
 	{

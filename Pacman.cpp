@@ -166,8 +166,9 @@ bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y
 }
 
 // Pacman
-Pacman::Pacman() : animation_over(0), dead(0), direction(0), power_pellet_timer(0), position({0, 0}) {
-loadSounds();
+Pacman::Pacman() : animation_over(0), dead(0), direction(0), power_pellet_timer(0), position({0, 0})
+{
+	loadSounds();
 }
 
 bool Pacman::get_animation_over() const
@@ -330,13 +331,15 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 	}
 
 	// Actualizar el temporizador del power pellet si Pacman toma uno
-    if (map_collision(1, 0, position.x, position.y, i_map, *this))
-    {
-        power_pellet_timer = static_cast<unsigned short>(ENERGIZER_DURATION / pow(2, i_level));
-        soundPowerPellet.play();
-    }else{
-        power_pellet_timer = std::max(0, power_pellet_timer - 1);
-    }
+	if (map_collision(1, 0, position.x, position.y, i_map, *this))
+	{
+		power_pellet_timer = static_cast<unsigned short>(ENERGIZER_DURATION / pow(2, i_level));
+		soundPowerPellet.play();
+	}
+	else
+	{
+		power_pellet_timer = std::max(0, power_pellet_timer - 1);
+	}
 }
 
 // Devuelve la posicion de Pacman
@@ -345,17 +348,18 @@ Position Pacman::get_position() const
 	return position;
 }
 
-void Pacman::loadSounds() {
-    if (!bufferPowerPellet.loadFromFile("Recursos/Audio/eatPowerPellet.wav"))
-        throw std::runtime_error("Error loading eat_PowerPellet.wav");
-    if (!bufferEating.loadFromFile("Recursos/Audio/eat.wav"))
-        throw std::runtime_error("Error loading eat.wav");
-    if (!bufferDying.loadFromFile("Recursos/Audio/dying.wav"))
-        throw std::runtime_error("Error loading dying.wav");
+void Pacman::loadSounds()
+{
+	if (!bufferPowerPellet.loadFromFile("Recursos/Audio/eatPowerPellet.wav"))
+		throw std::runtime_error("Error loading eat_PowerPellet.wav");
+	if (!bufferEating.loadFromFile("Recursos/Audio/eat.wav"))
+		throw std::runtime_error("Error loading eat.wav");
+	if (!bufferDying.loadFromFile("Recursos/Audio/dying.wav"))
+		throw std::runtime_error("Error loading dying.wav");
 
-    soundPowerPellet.setBuffer(bufferPowerPellet);
-    soundEating.setBuffer(bufferEating);
-    soundDying.setBuffer(bufferDying);
+	soundPowerPellet.setBuffer(bufferPowerPellet);
+	soundEating.setBuffer(bufferEating);
+	soundDying.setBuffer(bufferDying);
 }
 
 // Ghost
@@ -815,14 +819,15 @@ Position Ghost::get_position() const
 	return position;
 }
 
-void Ghost::loadSounds() {
-    if (!bufferSound.loadFromFile("Recursos/Audio/ghost_sound.wav"))
-        throw std::runtime_error("Error loading ghost_sound.wav");
-    if (!bufferSoundClose.loadFromFile("Recursos/Audio/ghost_soundClose.wav"))
-        throw std::runtime_error("Error loading ghost_soundClose.wav");
+void Ghost::loadSounds()
+{
+	if (!bufferSound.loadFromFile("Recursos/Audio/ghost_sound.wav"))
+		throw std::runtime_error("Error loading ghost_sound.wav");
+	if (!bufferSoundClose.loadFromFile("Recursos/Audio/ghost_soundClose.wav"))
+		throw std::runtime_error("Error loading ghost_soundClose.wav");
 
-    soundSound.setBuffer(bufferSound);
-    soundSoundClose.setBuffer(bufferSoundClose);
+	soundSound.setBuffer(bufferSound);
+	soundSoundClose.setBuffer(bufferSoundClose);
 }
 
 // Ghost Manager
