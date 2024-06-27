@@ -1,6 +1,7 @@
 #include <array>
 #include <string>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Pacman.h"
 
 // Convierte el boceto del mapa
@@ -97,7 +98,7 @@ void draw_map(const std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map, 
 }
 
 // Verifica colisiones en el mapa
-bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map)
+bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map, Pacman &pacman)
 {
 	bool output = 0;
 
@@ -148,13 +149,14 @@ bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y
 			else
 			{ // Verifica si hay power pelet o un pellet
 				if (Cell::Power_Pellet == i_map[x][y])
-				{ // Recoge pellet
+				{ // Recoge power pellet
 					output = 1;
 					i_map[x][y] = Cell::Empty;
 				}
 				else if (Cell::Pellet == i_map[x][y])
-				{ // Celda vac�a
+				{ // Recoge Pellet
 					i_map[x][y] = Cell::Empty;
+					pacman.playEatingSound();
 				}
 			}
 		}
@@ -164,7 +166,9 @@ bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y
 }
 
 // Pacman
-Pacman::Pacman() : animation_over(0), dead(0), direction(0), power_pellet_timer(0), position({0, 0}) {}
+Pacman::Pacman() : animation_over(0), dead(0), direction(0), power_pellet_timer(0), position({0, 0}) {
+loadSounds();
+}
 
 bool Pacman::get_animation_over() const
 {
@@ -205,7 +209,7 @@ void Pacman::draw(bool i_victory, sf::RenderWindow &i_window)
 			animation_over = 1;
 		}
 	}
-	else // Si Pacman est� vivo y no ha ganado
+	else // Si Pacman esta vivo y no ha ganado
 	{
 		animation_timer = (1 + animation_timer) % (PACMAN_ANIMATION_FRAMES * PACMAN_ANIMATION_SPEED);
 		pacman_shape.setFillColor(sf::Color::Yellow);
@@ -234,6 +238,7 @@ void Pacman::set_dead(bool i_dead)
 	if (1 == dead)
 	{
 		animation_timer = 0;
+		soundDying.play();
 	}
 }
 
@@ -242,17 +247,17 @@ void Pacman::set_position(short i_x, short i_y)
 	position = {i_x, i_y};
 }
 
-// Actualizar posici�n y estado Pacman
+// Actualizar posicion y estado Pacman
 void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map)
 {
 	// Detectar colisiones en las cuatro direcciones
 	std::array<bool, 4> walls{};
-	walls[0] = map_collision(0, 0, PACMAN_SPEED + position.x, position.y, i_map);
-	walls[1] = map_collision(0, 0, position.x, position.y - PACMAN_SPEED, i_map);
-	walls[2] = map_collision(0, 0, position.x - PACMAN_SPEED, position.y, i_map);
-	walls[3] = map_collision(0, 0, position.x, PACMAN_SPEED + position.y, i_map);
+	walls[0] = map_collision(0, 0, PACMAN_SPEED + position.x, position.y, i_map, *this);
+	walls[1] = map_collision(0, 0, position.x, position.y - PACMAN_SPEED, i_map, *this);
+	walls[2] = map_collision(0, 0, position.x - PACMAN_SPEED, position.y, i_map, *this);
+	walls[3] = map_collision(0, 0, position.x, PACMAN_SPEED + position.y, i_map, *this);
 
-	// Cambiar direcci�n de Pacman
+	// Cambiar direccion de Pacman
 	if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
 		if (0 == walls[0])
@@ -285,7 +290,7 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 		}
 	}
 
-	if (0 == walls[direction]) // Mover a Pacman si no hay colisi�n en la direcci�n seleccionada
+	if (0 == walls[direction]) // Mover a Pacman si no hay colision en la direccion seleccionada
 	{
 		switch (direction)
 		{
@@ -314,7 +319,7 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 		}
 	}
 
-	// Mover la posico�n de Pacman al otro extremo
+	// Mover la posicion de Pacman al otro extremo
 	if (-CELL_SIZE >= position.x)
 	{
 		position.x = CELL_SIZE * MAP_WIDTH - PACMAN_SPEED;
@@ -325,25 +330,38 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 	}
 
 	// Actualizar el temporizador del power pellet si Pacman toma uno
-	if (1 == map_collision(1, 0, position.x, position.y, i_map))
-	{
-		power_pellet_timer = static_cast<unsigned short>(ENERGIZER_DURATION / pow(2, i_level));
-	}
-	else
-	{
-		power_pellet_timer = std::max(0, power_pellet_timer - 1);
-	}
+    if (map_collision(1, 0, position.x, position.y, i_map, *this))
+    {
+        power_pellet_timer = static_cast<unsigned short>(ENERGIZER_DURATION / pow(2, i_level));
+        soundPowerPellet.play();
+    }else{
+        power_pellet_timer = std::max(0, power_pellet_timer - 1);
+    }
 }
 
-// Devuelve la posici�n de Pacman
+// Devuelve la posicion de Pacman
 Position Pacman::get_position() const
 {
 	return position;
 }
 
+void Pacman::loadSounds() {
+    if (!bufferPowerPellet.loadFromFile("Recursos/Audio/eatPowerPellet.wav"))
+        throw std::runtime_error("Error loading eat_PowerPellet.wav");
+    if (!bufferEating.loadFromFile("Recursos/Audio/eat.wav"))
+        throw std::runtime_error("Error loading eat.wav");
+    if (!bufferDying.loadFromFile("Recursos/Audio/dying.wav"))
+        throw std::runtime_error("Error loading dying.wav");
+
+    soundPowerPellet.setBuffer(bufferPowerPellet);
+    soundEating.setBuffer(bufferEating);
+    soundDying.setBuffer(bufferDying);
+}
+
 // Ghost
 Ghost::Ghost(unsigned char i_id) : id(i_id)
 {
+	loadSounds();
 }
 // Verifica si el fantasma colisiona con Pacman
 bool Ghost::pacman_collision(const Position &i_pacman_position)
@@ -358,7 +376,7 @@ bool Ghost::pacman_collision(const Position &i_pacman_position)
 
 	return 0; // no hay colisi�n
 }
-// Calcula la distancia al objetivo en una direcci�n espec�fica
+// Calcula la distancia al objetivo en una direccion especifica
 float Ghost::get_target_distance(unsigned char i_direction)
 {
 	short x = position.x;
@@ -499,20 +517,19 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 	// Actualiza el objetivo del fantasma
 	update_target(i_pacman.get_direction(), i_ghost_0.get_position(), i_pacman.get_position());
 	// Comprueba las colisiones con las paredes
-	walls[0] = map_collision(0, use_door, speed + position.x, position.y, i_map);
-	walls[1] = map_collision(0, use_door, position.x, position.y - speed, i_map);
-	walls[2] = map_collision(0, use_door, position.x - speed, position.y, i_map);
-	walls[3] = map_collision(0, use_door, position.x, speed + position.y, i_map);
+	walls[0] = map_collision(0, use_door, speed + position.x, position.y, i_map, i_pacman);
+	walls[1] = map_collision(0, use_door, position.x, position.y - speed, i_map, i_pacman);
+	walls[2] = map_collision(0, use_door, position.x - speed, position.y, i_map, i_pacman);
+	walls[3] = map_collision(0, use_door, position.x, speed + position.y, i_map, i_pacman);
 
 	if (1 != frightened_mode)
 	{
 		unsigned char optimal_direction = 4;
 		move = 1;
 
-		// Encuentra la mejor direcci�n para moverse
+		// Encuentra la mejor direccion para moverse
 		for (unsigned char a = 0; a < 4; a++)
 		{
-			// Gohsts can't turn back! (Unless they really have to)
 			if (a == (2 + direction) % 4)
 			{
 				continue;
@@ -533,7 +550,7 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 				}
 			}
 		}
-		// Si hay m�s de un camino disponible, elige la direcci�n �ptima
+		// Si hay mas de un camino disponible, elige la direcci�n �ptima
 		if (1 < available_ways)
 		{
 			direction = optimal_direction;
@@ -792,10 +809,20 @@ void Ghost::update_target(unsigned char i_pacman_direction, const Position &i_gh
 	}
 }
 
-// Devuelve la posici�n del fantasma
+// Devuelve la posicion del fantasma
 Position Ghost::get_position() const
 {
 	return position;
+}
+
+void Ghost::loadSounds() {
+    if (!bufferSound.loadFromFile("Recursos/Audio/ghost_sound.wav"))
+        throw std::runtime_error("Error loading ghost_sound.wav");
+    if (!bufferSoundClose.loadFromFile("Recursos/Audio/ghost_soundClose.wav"))
+        throw std::runtime_error("Error loading ghost_soundClose.wav");
+
+    soundSound.setBuffer(bufferSound);
+    soundSoundClose.setBuffer(bufferSoundClose);
 }
 
 // Ghost Manager

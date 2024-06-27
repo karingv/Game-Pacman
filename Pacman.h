@@ -56,6 +56,13 @@ class Pacman {
     unsigned short animation_timer;
     unsigned short power_pellet_timer;
     Position position;
+    
+    sf::SoundBuffer bufferPowerPellet;
+    sf::SoundBuffer bufferEating;
+    sf::SoundBuffer bufferDying;
+    sf::Sound soundPowerPellet;
+    sf::Sound soundEating;
+	sf::Sound soundDying;
 
 public:
     Pacman();
@@ -73,6 +80,13 @@ public:
     void update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH>& i_map);
 
     Position get_position() const;
+    
+    void loadSounds();
+    
+    void playEatingSound() {
+        soundEating.play();
+    }
+
 };
 
 
@@ -89,6 +103,12 @@ class Ghost {
     Position home_exit;
     Position position;
     Position target;
+    sf::SoundBuffer bufferSound;
+    sf::SoundBuffer bufferSoundClose;
+    sf::Sound soundSound;
+    sf::Sound soundSoundClose;
+    
+    
 
 public:
     Ghost(unsigned char i_id);
@@ -103,6 +123,7 @@ public:
     void update_target(unsigned char i_pacman_direction, const Position& i_ghost_0_position, const Position& i_pacman_position);
 
     Position get_position() const;
+    void loadSounds();
 };
 
 // Clase GhostManager
@@ -123,6 +144,6 @@ public:
 std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> convert_sketch(const std::array<std::string, MAP_HEIGHT>& i_map_sketch, std::array<Position, 4>& i_ghost_positions, Pacman& i_pacman);
 void draw_map(const std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH>& i_map, sf::RenderWindow& i_window);
 void draw_text(bool i_center, unsigned short i_x, unsigned short i_y, const std::string& i_text, sf::RenderWindow& i_window);
-bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH>& i_map);
+bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH>& i_map, Pacman &pacman);
 
 

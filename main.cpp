@@ -1,7 +1,9 @@
 #include <array>
+
 #include <chrono>
 #include <ctime>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "Pacman.h"
 
@@ -63,10 +65,26 @@ int main()
 
 	// Obtener la hora actual y almacenarla en una variable.
 	previous_time = std::chrono::steady_clock::now();
+	
+	// Cargar sonidos
+    sf::SoundBuffer startBuffer;
+    if (!startBuffer.loadFromFile("Recursos/Audio/startUp.wav"))
+        
+    {
+        return -1; // Manejo de errores
+    }
+
+    sf::Sound startSound(startBuffer);
+ 
+
+    // Reproducir el sonido de inicio
+    //startSound.play();
+    
+    
+
 
 	while (1 == window.isOpen())
 	{
-
 		unsigned delta_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - previous_time).count();
 		lag += delta_time;
 		previous_time += std::chrono::microseconds(delta_time);
@@ -86,7 +104,7 @@ int main()
 				}
 				}
 			}
-			// Actualiza el estado del juego si no se ha ganado y Pacman no est� muerto
+			// Actualiza el estado del juego si no se ha ganado y Pacman no esta muerto
 			if (0 == game_won && 0 == pacman.get_dead())
 			{
 				game_won = 1;
