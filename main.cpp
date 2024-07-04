@@ -13,6 +13,8 @@ int main()
 	bool game_won = 0;
 	unsigned lag = 0;
 	unsigned char level = 0;
+	int lastPoints = 0;
+	int lastEating = 0;
 
 	std::chrono::time_point<std::chrono::steady_clock> previous_time;
 
@@ -161,14 +163,31 @@ int main()
 
 					ghost_manager.draw(GHOST_FLASH_START >= pacman.get_power_pellet_timer(), window);
 
+					if (lastPoints != pacman.get_points())
+					{
+						lastEating = 0;
+					}
+					else
+					{
+						lastEating++;
+					}
+
+					if (lastEating > 50)
+					{
+						pacman.playEatingSound();
+					}
+
 					draw_text(1, 0, CELL_SIZE * MAP_HEIGHT, "Nivel: " + std::to_string(1 + level), window);
 					draw_text(0, CELL_SIZE, CELL_SIZE * MAP_HEIGHT + 2, "Puntos: " + std::to_string(pacman.get_points()), window);
+
+					lastPoints = pacman.get_points();
 				}
 
 				pacman.draw(game_won, window);
 
 				if (1 == pacman.get_animation_over())
 				{
+					pacman.stopEatingSound();
 					if (1 == game_won)
 					{
 						draw_text(1, 0, 0, "Siguiente nivel", window);

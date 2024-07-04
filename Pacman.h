@@ -93,11 +93,8 @@ public:
 
     void loadSounds();
 
-    void playEatingSound()
-    {
-        soundEating.play();
-        soundEating.setLoop(true);
-    }
+    void playEatingSound();
+    void stopEatingSound();
 };
 
 // Clase Ghost

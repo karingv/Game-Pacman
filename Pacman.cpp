@@ -158,7 +158,6 @@ bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y
 				else if (Cell::Pellet == i_map[x][y])
 				{ // Recoge Pellet
 					i_map[x][y] = Cell::Empty;
-					pacman.playEatingSound();
 					// Añade 10 puntos
 					pacman.set_points(pacman.get_points() + 10);
 				}
@@ -198,9 +197,6 @@ unsigned short Pacman::get_power_pellet_timer() const
 // Dibuja Pacman
 void Pacman::draw(bool i_victory, sf::RenderWindow &i_window)
 {
-	// sf::CircleShape pacman_shape(CELL_SIZE / 2);
-	// pacman_shape.setPosition(position.x, position.y);
-
 	unsigned char frame = static_cast<unsigned char>(floor(animation_timer / static_cast<float>(PACMAN_ANIMATION_SPEED)));
 	sf::Sprite sprite;
 	sf::Texture texture;
@@ -210,10 +206,6 @@ void Pacman::draw(bool i_victory, sf::RenderWindow &i_window)
 	{
 		if (animation_timer < PACMAN_DEATH_FRAMES * PACMAN_ANIMATION_SPEED)
 		{
-			// animation_timer++;
-			// pacman_shape.setFillColor(sf::Color::White);
-			// i_window.draw(pacman_shape);
-
 			animation_timer++;
 			texture.loadFromFile("Recursos/Images/PacmanDeath" + std::to_string(CELL_SIZE) + ".png");
 			sprite.setTexture(texture);
@@ -227,10 +219,6 @@ void Pacman::draw(bool i_victory, sf::RenderWindow &i_window)
 	}
 	else // Si Pacman esta vivo y no ha ganado
 	{
-		// animation_timer = (1 + animation_timer) % (PACMAN_ANIMATION_FRAMES * PACMAN_ANIMATION_SPEED);
-		// pacman_shape.setFillColor(sf::Color::Yellow);
-		// i_window.draw(pacman_shape);
-
 		texture.loadFromFile("Recursos/Images/Pacman" + std::to_string(CELL_SIZE) + ".png");
 		sprite.setTexture(texture);
 		sprite.setTextureRect(sf::IntRect(CELL_SIZE * frame, CELL_SIZE * direction, CELL_SIZE, CELL_SIZE));
@@ -380,6 +368,7 @@ void Pacman::loadSounds()
 
 	soundPowerPellet.setBuffer(bufferPowerPellet);
 	soundEating.setBuffer(bufferEating);
+	soundEating.setLoop(true);
 	soundDying.setBuffer(bufferDying);
 }
 
@@ -396,6 +385,16 @@ void Pacman::set_points(int new_points)
 void Pacman::reset_points()
 {
 	points = 0;
+}
+
+void Pacman::playEatingSound()
+{
+	soundEating.play();
+}
+
+void Pacman::stopEatingSound()
+{
+	soundEating.stop();
 }
 
 // Ghost
