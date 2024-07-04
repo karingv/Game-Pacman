@@ -1,149 +1,178 @@
 #include <array>
 #include <string>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Pacman.h"
 
 // Convierte el boceto del mapa
-std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> convert_sketch(const std::array<std::string, MAP_HEIGHT>& i_map_sketch, std::array<Position, 4>& i_ghost_positions, Pacman& i_pacman) {
-    std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> output_map{};
+std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> convert_sketch(const std::array<std::string, MAP_HEIGHT> &i_map_sketch, std::array<Position, 4> &i_ghost_positions, Pacman &i_pacman)
+{
+	std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> output_map{};
 
-    for (unsigned char a = 0; a < MAP_HEIGHT; a++) {
-        for (unsigned char b = 0; b < MAP_WIDTH; b++) {
+	for (unsigned char a = 0; a < MAP_HEIGHT; a++)
+	{
+		for (unsigned char b = 0; b < MAP_WIDTH; b++)
+		{
 
-            output_map[b][a] = Cell::Empty;
+			output_map[b][a] = Cell::Empty;
 
-            switch (i_map_sketch[a][b]) {  //Boceto del mapa de array de strings
-    
-                case '#': // Pared
-                    output_map[b][a] = Cell::Wall;
-                    break;
-                case '=': // Puerta
-                    output_map[b][a] = Cell::Door;
-                    break;
-                case '.': // Pellet
-                    output_map[b][a] = Cell::Pellet;
-                    break;
-                case '0': // Fantasma rojo: Blinky
-                    i_ghost_positions[0].x = CELL_SIZE * b;   //Posición inicial en el eje x
-                    i_ghost_positions[0].y = CELL_SIZE * a;   //Posición inicial en el eje y
-                    break;
-                case '1': // Fantasma rosa: Pinky
-                    i_ghost_positions[1].x = CELL_SIZE * b;
-                    i_ghost_positions[1].y = CELL_SIZE * a;
-                    break;
-                case '2': // Fantasma cian: Inky
-                    i_ghost_positions[2].x = CELL_SIZE * b;
-                    i_ghost_positions[2].y = CELL_SIZE * a;
-                    break;
-                case '3': // Fantasma naranja: Clyde
-                    i_ghost_positions[3].x = CELL_SIZE * b;
-                    i_ghost_positions[3].y = CELL_SIZE * a;
-                    break;
-                case 'P': // Pacman 
-                    i_pacman.set_position(CELL_SIZE * b, CELL_SIZE * a);
-                    break;
-                case 'o': // Power Pellet
-                    output_map[b][a] = Cell::Power_Pellet;
-                    break;
-            }
-        }
-    }
+			switch (i_map_sketch[a][b])
+			{ // Boceto del mapa de array de strings
 
-    return output_map;
+			case '#': // Pared
+				output_map[b][a] = Cell::Wall;
+				break;
+			case '=': // Puerta
+				output_map[b][a] = Cell::Door;
+				break;
+			case '.': // Pellet
+				output_map[b][a] = Cell::Pellet;
+				break;
+			case '0':									// Fantasma rojo: Blinky
+				i_ghost_positions[0].x = CELL_SIZE * b; // Posiciï¿½n inicial en el eje x
+				i_ghost_positions[0].y = CELL_SIZE * a; // Posiciï¿½n inicial en el eje y
+				break;
+			case '1': // Fantasma rosa: Pinky
+				i_ghost_positions[1].x = CELL_SIZE * b;
+				i_ghost_positions[1].y = CELL_SIZE * a;
+				break;
+			case '2': // Fantasma cian: Inky
+				i_ghost_positions[2].x = CELL_SIZE * b;
+				i_ghost_positions[2].y = CELL_SIZE * a;
+				break;
+			case '3': // Fantasma naranja: Clyde
+				i_ghost_positions[3].x = CELL_SIZE * b;
+				i_ghost_positions[3].y = CELL_SIZE * a;
+				break;
+			case 'P': // Pacman
+				i_pacman.set_position(CELL_SIZE * b, CELL_SIZE * a);
+				break;
+			case 'o': // Power Pellet
+				output_map[b][a] = Cell::Power_Pellet;
+				break;
+			}
+		}
+	}
+
+	return output_map;
 }
 
-// Dibuja el mapa 
-void draw_map(const std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map, sf::RenderWindow &i_window) {
-    sf::RectangleShape wall_shape(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-    sf::RectangleShape door_shape(sf::Vector2f(CELL_SIZE, CELL_SIZE / 4));
-    sf::CircleShape pellet_shape(CELL_SIZE / 8);
-    sf::CircleShape power_pellet_shape(CELL_SIZE / 4);
+// Dibuja el mapa
+void draw_map(const std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map, sf::RenderWindow &i_window)
+{
+	sf::RectangleShape wall_shape(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+	sf::RectangleShape door_shape(sf::Vector2f(CELL_SIZE, CELL_SIZE / 4));
+	sf::CircleShape pellet_shape(CELL_SIZE / 8);
+	sf::CircleShape power_pellet_shape(CELL_SIZE / 4);
 
-    for (unsigned char a = 0; a < MAP_WIDTH; a++) {
-        for (unsigned char b = 0; b < MAP_HEIGHT; b++) {
-            wall_shape.setPosition(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b));
+	for (unsigned char a = 0; a < MAP_WIDTH; a++)
+	{
+		for (unsigned char b = 0; b < MAP_HEIGHT; b++)
+		{
+			wall_shape.setPosition(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b));
 
-            switch (i_map[a][b]) {
-                case Cell::Door: // Puerta
-                    door_shape.setFillColor(sf::Color::White);
-                    door_shape.setPosition(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b));
-                    i_window.draw(door_shape);
-                    break;
-                case Cell::Power_Pellet: // PowerPellet
-                    power_pellet_shape.setFillColor(sf::Color::White);
-                    power_pellet_shape.setPosition(static_cast<float>(CELL_SIZE * a + (CELL_SIZE / 2 - power_pellet_shape.getRadius())), static_cast<float>(CELL_SIZE * b + (CELL_SIZE / 2 - power_pellet_shape.getRadius())));
-                    i_window.draw(power_pellet_shape);
-                    break;
-                case Cell::Pellet: // Pellet
-                    pellet_shape.setFillColor(sf::Color::White);
-                    pellet_shape.setPosition(static_cast<float>(CELL_SIZE * a + (CELL_SIZE / 2 - pellet_shape.getRadius())), static_cast<float>(CELL_SIZE * b + (CELL_SIZE / 2 - pellet_shape.getRadius())));
-                    i_window.draw(pellet_shape);
-                    break;
-                case Cell::Wall: // Pared
-                    wall_shape.setFillColor(sf::Color::Blue);
-                    i_window.draw(wall_shape);
-                    break;
-            }
-        }
-    }
+			switch (i_map[a][b])
+			{
+			case Cell::Door: // Puerta
+				door_shape.setFillColor(sf::Color::White);
+				door_shape.setPosition(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b));
+				i_window.draw(door_shape);
+				break;
+			case Cell::Power_Pellet: // PowerPellet
+				power_pellet_shape.setFillColor(sf::Color::White);
+				power_pellet_shape.setPosition(static_cast<float>(CELL_SIZE * a + (CELL_SIZE / 2 - power_pellet_shape.getRadius())), static_cast<float>(CELL_SIZE * b + (CELL_SIZE / 2 - power_pellet_shape.getRadius())));
+				i_window.draw(power_pellet_shape);
+				break;
+			case Cell::Pellet: // Pellet
+				pellet_shape.setFillColor(sf::Color::White);
+				pellet_shape.setPosition(static_cast<float>(CELL_SIZE * a + (CELL_SIZE / 2 - pellet_shape.getRadius())), static_cast<float>(CELL_SIZE * b + (CELL_SIZE / 2 - pellet_shape.getRadius())));
+				i_window.draw(pellet_shape);
+				break;
+			case Cell::Wall: // Pared
+				wall_shape.setFillColor(sf::Color::Blue);
+				i_window.draw(wall_shape);
+				break;
+			}
+		}
+	}
 }
 
-// Verifica colisiones en el mapa 
-bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH>& i_map) {
-    bool output = 0;
+// Verifica colisiones en el mapa
+bool map_collision(bool i_collect_pellets, bool i_use_door, short i_x, short i_y, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map, Pacman &pacman)
+{
+	bool output = 0;
 
-    // Obtener la posición 
-    float cell_x = i_x / static_cast<float>(CELL_SIZE);
-    float cell_y = i_y / static_cast<float>(CELL_SIZE);
+	// Obtener la posiciï¿½n
+	float cell_x = i_x / static_cast<float>(CELL_SIZE);
+	float cell_y = i_y / static_cast<float>(CELL_SIZE);
 
-    // Un fantasma o pacman puede intersectar hasta 4 celdas.
-    for (unsigned char a = 0; a < 4; a++) {
-        short x = 0;
-        short y = 0;
+	// Un fantasma o pacman puede intersectar hasta 4 celdas.
+	for (unsigned char a = 0; a < 4; a++)
+	{
+		short x = 0;
+		short y = 0;
 
-        switch (a) {
-            case 0: // Celda superior izquierda
-                x = static_cast<short>(floor(cell_x));
-                y = static_cast<short>(floor(cell_y));
-                break;
-            case 1: // Celda superior derecha
-                x = static_cast<short>(ceil(cell_x));
-                y = static_cast<short>(floor(cell_y));
-                break;
-            case 2: // Celda inferior izquierda
-                x = static_cast<short>(floor(cell_x));
-                y = static_cast<short>(ceil(cell_y));
-                break;
-            case 3: // Celda inferior derecha
-                x = static_cast<short>(ceil(cell_x));
-                y = static_cast<short>(ceil(cell_y));
-                break;
-        }
+		switch (a)
+		{
+		case 0: // Celda superior izquierda
+			x = static_cast<short>(floor(cell_x));
+			y = static_cast<short>(floor(cell_y));
+			break;
+		case 1: // Celda superior derecha
+			x = static_cast<short>(ceil(cell_x));
+			y = static_cast<short>(floor(cell_y));
+			break;
+		case 2: // Celda inferior izquierda
+			x = static_cast<short>(floor(cell_x));
+			y = static_cast<short>(ceil(cell_y));
+			break;
+		case 3: // Celda inferior derecha
+			x = static_cast<short>(ceil(cell_x));
+			y = static_cast<short>(ceil(cell_y));
+			break;
+		}
 
-        // Verificar que las coordenadas estan dentro del limite
-        if (0 <= x && 0 <= y && MAP_HEIGHT > y && MAP_WIDTH > x) {
-            if (0 == i_collect_pellets) { // Verifica si hay una pared o puerta
-                if (Cell::Wall == i_map[x][y]) {
-                    output = 1;
-                } else if (0 == i_use_door && Cell::Door == i_map[x][y]) {
-                    output = 1;
-                }
-            } else {   // Verifica si hay power pelet o un pellet
-                if (Cell::Power_Pellet == i_map[x][y]) {  //Recoge pellet
-                    output = 1;
-                    i_map[x][y] = Cell::Empty; 
-                } else if (Cell::Pellet == i_map[x][y]) { //Celda vacía
-                    i_map[x][y] = Cell::Empty;
-                }
-            }
-        }
-    }
+		// Verificar que las coordenadas estan dentro del limite
+		if (0 <= x && 0 <= y && MAP_HEIGHT > y && MAP_WIDTH > x)
+		{
+			if (0 == i_collect_pellets)
+			{ // Verifica si hay una pared o puerta
+				if (Cell::Wall == i_map[x][y])
+				{
+					output = 1;
+				}
+				else if (0 == i_use_door && Cell::Door == i_map[x][y])
+				{
+					output = 1;
+				}
+			}
+			else
+			{ // Verifica si hay power pelet o un pellet
+				if (Cell::Power_Pellet == i_map[x][y])
+				{ // Recoge power pellet
+					output = 1;
+					i_map[x][y] = Cell::Empty;
+					// AÃ±ade 50 puntos
+					pacman.set_points(pacman.get_points() + 50);
+				}
+				else if (Cell::Pellet == i_map[x][y])
+				{ // Recoge Pellet
+					i_map[x][y] = Cell::Empty;
+					// AÃ±ade 10 puntos
+					pacman.set_points(pacman.get_points() + 10);
+				}
+			}
+		}
+	}
 
-    return output;
+	return output;
 }
 
-//Pacman
-Pacman::Pacman() : animation_over(0), dead(0), direction(0), power_pellet_timer(0), position({0, 0}){}
+// Pacman
+Pacman::Pacman() : animation_over(0), dead(0), direction(0), power_pellet_timer(0), position({0, 0})
+{
+	loadSounds();
+}
 
 bool Pacman::get_animation_over() const
 {
@@ -165,7 +194,7 @@ unsigned short Pacman::get_power_pellet_timer() const
 	return power_pellet_timer;
 }
 
-//Dibuja Pacman
+// Dibuja Pacman
 void Pacman::draw(bool i_victory, sf::RenderWindow &i_window)
 {
 	unsigned char frame = static_cast<unsigned char>(floor(animation_timer / static_cast<float>(PACMAN_ANIMATION_SPEED)));
@@ -173,31 +202,32 @@ void Pacman::draw(bool i_victory, sf::RenderWindow &i_window)
 	sf::Texture texture;
 	sprite.setPosition(position.x, position.y);
 
-	sf::CircleShape pacman_shape(CELL_SIZE / 2);
-	pacman_shape.setPosition(position.x, position.y);
-
-	if (1 == dead || 1 == i_victory)  // Si Pacman está muerto o ha ganado
+	if (1 == dead || 1 == i_victory) // Si Pacman estï¿½ muerto o ha ganado
 	{
 		if (animation_timer < PACMAN_DEATH_FRAMES * PACMAN_ANIMATION_SPEED)
 		{
 			animation_timer++;
-			pacman_shape.setFillColor(sf::Color::White);
-			i_window.draw(pacman_shape);
+			texture.loadFromFile("Recursos/Images/PacmanDeath" + std::to_string(CELL_SIZE) + ".png");
+			sprite.setTexture(texture);
+			sprite.setTextureRect(sf::IntRect(CELL_SIZE * frame, 0, CELL_SIZE, CELL_SIZE));
+			i_window.draw(sprite);
 		}
 		else
 		{
 			animation_over = 1;
 		}
 	}
-	else  // Si Pacman está vivo y no ha ganado
+	else // Si Pacman esta vivo y no ha ganado
 	{
+		texture.loadFromFile("Recursos/Images/Pacman" + std::to_string(CELL_SIZE) + ".png");
+		sprite.setTexture(texture);
+		sprite.setTextureRect(sf::IntRect(CELL_SIZE * frame, CELL_SIZE * direction, CELL_SIZE, CELL_SIZE));
+		i_window.draw(sprite);
 		animation_timer = (1 + animation_timer) % (PACMAN_ANIMATION_FRAMES * PACMAN_ANIMATION_SPEED);
-		pacman_shape.setFillColor(sf::Color::Yellow);
-		i_window.draw(pacman_shape);
 	}
 }
 
-void Pacman::reset() //Reinicia el estado de Pacman
+void Pacman::reset() // Reinicia el estado de Pacman
 {
 	animation_over = 0;
 	dead = 0;
@@ -218,6 +248,7 @@ void Pacman::set_dead(bool i_dead)
 	if (1 == dead)
 	{
 		animation_timer = 0;
+		soundDying.play();
 	}
 }
 
@@ -226,17 +257,17 @@ void Pacman::set_position(short i_x, short i_y)
 	position = {i_x, i_y};
 }
 
-//Actualizar posición y estado Pacman
+// Actualizar posicion y estado Pacman
 void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map)
 {
 	// Detectar colisiones en las cuatro direcciones
 	std::array<bool, 4> walls{};
-	walls[0] = map_collision(0, 0, PACMAN_SPEED + position.x, position.y, i_map);
-	walls[1] = map_collision(0, 0, position.x, position.y - PACMAN_SPEED, i_map);
-	walls[2] = map_collision(0, 0, position.x - PACMAN_SPEED, position.y, i_map);
-	walls[3] = map_collision(0, 0, position.x, PACMAN_SPEED + position.y, i_map);
+	walls[0] = map_collision(0, 0, PACMAN_SPEED + position.x, position.y, i_map, *this);
+	walls[1] = map_collision(0, 0, position.x, position.y - PACMAN_SPEED, i_map, *this);
+	walls[2] = map_collision(0, 0, position.x - PACMAN_SPEED, position.y, i_map, *this);
+	walls[3] = map_collision(0, 0, position.x, PACMAN_SPEED + position.y, i_map, *this);
 
-	// Cambiar dirección de Pacman
+	// Cambiar direccion de Pacman
 	if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
 		if (0 == walls[0])
@@ -268,8 +299,8 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 			direction = 3;
 		}
 	}
-   
-	if (0 == walls[direction])   // Mover a Pacman si no hay colisión en la dirección seleccionada
+
+	if (0 == walls[direction]) // Mover a Pacman si no hay colision en la direccion seleccionada
 	{
 		switch (direction)
 		{
@@ -298,7 +329,7 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 		}
 	}
 
-	//Mover la posicoón de Pacman al otro extremo
+	// Mover la posicion de Pacman al otro extremo
 	if (-CELL_SIZE >= position.x)
 	{
 		position.x = CELL_SIZE * MAP_WIDTH - PACMAN_SPEED;
@@ -307,11 +338,12 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 	{
 		position.x = PACMAN_SPEED - CELL_SIZE;
 	}
-	
+
 	// Actualizar el temporizador del power pellet si Pacman toma uno
-	if (1 == map_collision(1, 0, position.x, position.y, i_map))
+	if (map_collision(1, 0, position.x, position.y, i_map, *this))
 	{
 		power_pellet_timer = static_cast<unsigned short>(ENERGIZER_DURATION / pow(2, i_level));
+		soundPowerPellet.play();
 	}
 	else
 	{
@@ -319,15 +351,56 @@ void Pacman::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGH
 	}
 }
 
-// Devuelve la posición de Pacman
+// Devuelve la posicion de Pacman
 Position Pacman::get_position() const
 {
 	return position;
 }
 
-//Ghost
+void Pacman::loadSounds()
+{
+	if (!bufferPowerPellet.loadFromFile("Recursos/Audio/eatPowerPellet.wav"))
+		throw std::runtime_error("Error loading eat_PowerPellet.wav");
+	if (!bufferEating.loadFromFile("Recursos/Audio/eat.wav"))
+		throw std::runtime_error("Error loading eat.wav");
+	if (!bufferDying.loadFromFile("Recursos/Audio/dying.wav"))
+		throw std::runtime_error("Error loading dying.wav");
+
+	soundPowerPellet.setBuffer(bufferPowerPellet);
+	soundEating.setBuffer(bufferEating);
+	soundEating.setLoop(true);
+	soundDying.setBuffer(bufferDying);
+}
+
+int Pacman::get_points()
+{
+	return points;
+}
+
+void Pacman::set_points(int new_points)
+{
+	points = new_points;
+}
+
+void Pacman::reset_points()
+{
+	points = 0;
+}
+
+void Pacman::playEatingSound()
+{
+	soundEating.play();
+}
+
+void Pacman::stopEatingSound()
+{
+	soundEating.stop();
+}
+
+// Ghost
 Ghost::Ghost(unsigned char i_id) : id(i_id)
 {
+	loadSounds();
 }
 // Verifica si el fantasma colisiona con Pacman
 bool Ghost::pacman_collision(const Position &i_pacman_position)
@@ -336,13 +409,13 @@ bool Ghost::pacman_collision(const Position &i_pacman_position)
 	{
 		if (position.y > i_pacman_position.y - CELL_SIZE && position.y < CELL_SIZE + i_pacman_position.y)
 		{
-			return 1; //colisión detectada
+			return 1; // colisiï¿½n detectada
 		}
 	}
 
-	return 0; //no hay colisión
+	return 0; // no hay colisiï¿½n
 }
-// Calcula la distancia al objetivo en una dirección específica
+// Calcula la distancia al objetivo en una direccion especifica
 float Ghost::get_target_distance(unsigned char i_direction)
 {
 	short x = position.x;
@@ -373,17 +446,17 @@ float Ghost::get_target_distance(unsigned char i_direction)
 		y += GHOST_SPEED;
 	}
 	}
-  	// retorna la distancia al objetivo 
+	// retorna la distancia al objetivo
 	return static_cast<float>(sqrt(pow(x - target.x, 2) + pow(y - target.y, 2)));
 }
-//dibuja fantasma
+// dibuja fantasma
 void Ghost::draw(bool i_flash, sf::RenderWindow &i_window)
 {
 	unsigned char body_frame = static_cast<unsigned char>(floor(animation_timer / static_cast<float>(GHOST_ANIMATION_SPEED)));
 	sf::CircleShape ghost_shape(CELL_SIZE / 2);
 	ghost_shape.setPosition(position.x, position.y);
 
-	if (0 == frightened_mode) //pacman no come power pellet
+	if (0 == frightened_mode) // pacman no come power pellet
 	{
 		switch (id)
 		{
@@ -414,7 +487,7 @@ void Ghost::draw(bool i_flash, sf::RenderWindow &i_window)
 		}
 		i_window.draw(ghost_shape);
 	}
-	else if (1 == frightened_mode) //pacman come power pellet
+	else if (1 == frightened_mode) // pacman come power pellet
 	{
 		ghost_shape.setFillColor(sf::Color(36, 36, 255)); // Azul
 		if (1 == i_flash && 0 == body_frame % 2)
@@ -428,7 +501,7 @@ void Ghost::draw(bool i_flash, sf::RenderWindow &i_window)
 		i_window.draw(ghost_shape);
 	}
 
-	// Prevenir desbordamiento del contador de animación
+	// Prevenir desbordamiento del contador de animaciï¿½n
 	animation_timer = (1 + animation_timer) % (GHOST_ANIMATION_FRAMES * GHOST_ANIMATION_SPEED);
 }
 
@@ -483,20 +556,19 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 	// Actualiza el objetivo del fantasma
 	update_target(i_pacman.get_direction(), i_ghost_0.get_position(), i_pacman.get_position());
 	// Comprueba las colisiones con las paredes
-	walls[0] = map_collision(0, use_door, speed + position.x, position.y, i_map);
-	walls[1] = map_collision(0, use_door, position.x, position.y - speed, i_map);
-	walls[2] = map_collision(0, use_door, position.x - speed, position.y, i_map);
-	walls[3] = map_collision(0, use_door, position.x, speed + position.y, i_map);
+	walls[0] = map_collision(0, use_door, speed + position.x, position.y, i_map, i_pacman);
+	walls[1] = map_collision(0, use_door, position.x, position.y - speed, i_map, i_pacman);
+	walls[2] = map_collision(0, use_door, position.x - speed, position.y, i_map, i_pacman);
+	walls[3] = map_collision(0, use_door, position.x, speed + position.y, i_map, i_pacman);
 
 	if (1 != frightened_mode)
 	{
 		unsigned char optimal_direction = 4;
 		move = 1;
 
-		// Encuentra la mejor dirección para moverse
+		// Encuentra la mejor direccion para moverse
 		for (unsigned char a = 0; a < 4; a++)
 		{
-			// Gohsts can't turn back! (Unless they really have to)
 			if (a == (2 + direction) % 4)
 			{
 				continue;
@@ -517,7 +589,7 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 				}
 			}
 		}
-		// Si hay más de un camino disponible, elige la dirección óptima
+		// Si hay mas de un camino disponible, elige la direcciï¿½n ï¿½ptima
 		if (1 < available_ways)
 		{
 			direction = optimal_direction;
@@ -576,7 +648,7 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 		}
 	}
 
-	 // Mueve el fantasma si puede moverse
+	// Mueve el fantasma si puede moverse
 	if (1 == move)
 	{
 		switch (direction)
@@ -605,7 +677,7 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 		}
 		}
 
-		//mueve el fantasma al otro lado del mapa si sale de los límites
+		// mueve el fantasma al otro lado del mapa si sale de los lï¿½mites
 		if (-CELL_SIZE >= position.x)
 		{
 			position.x = CELL_SIZE * MAP_WIDTH - speed;
@@ -615,15 +687,15 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 			position.x = speed - CELL_SIZE;
 		}
 	}
-	
-	// Comprueba la colisión con Pacman
+
+	// Comprueba la colisiï¿½n con Pacman
 	if (1 == pacman_collision(i_pacman.get_position()))
 	{
-		if (0 == frightened_mode) 
+		if (0 == frightened_mode)
 		{
 			i_pacman.set_dead(1); // Pacman muere si colisiona con un fantasma no asustado
 		}
-		else 
+		else
 		{
 			use_door = 1;
 
@@ -633,67 +705,68 @@ void Ghost::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT
 		}
 	}
 }
-// Actualiza el objetivo del fantasma según su modo y el estado de Pacman
+
+// Actualiza el objetivo del fantasma segï¿½n su modo y el estado de Pacman
 void Ghost::update_target(unsigned char i_pacman_direction, const Position &i_ghost_0_position, const Position &i_pacman_position)
 {
-	if (1 == use_door) 
+	if (1 == use_door)
 	{
 		if (position == target)
 		{
-			if (home_exit == target) 
+			if (home_exit == target)
 			{
-				use_door = 0; 
+				use_door = 0;
 			}
-			else if (home == target) 
+			else if (home == target)
 			{
 				frightened_mode = 0;
 
-				target = home_exit; 
+				target = home_exit;
 			}
 		}
 	}
 	else
 	{
-		if (0 == movement_mode) // Si el fantasma esta en modo de dispersión
+		if (0 == movement_mode) // Si el fantasma esta en modo de dispersiï¿½n
 		{
 			// Cada fantasma se dirige a una esquina asignada en el mapa
 			switch (id)
 			{
-			case 0:  //Esquina superior derecha.
+			case 0: // Esquina superior derecha.
 			{
 				target = {CELL_SIZE * (MAP_WIDTH - 1), 0};
 
 				break;
 			}
-			case 1:  //Esquina superior izquierda.
+			case 1: // Esquina superior izquierda.
 			{
 				target = {0, 0};
 
 				break;
 			}
-			case 2:  //Esquina inferior derecha.
+			case 2: // Esquina inferior derecha.
 			{
 				target = {CELL_SIZE * (MAP_WIDTH - 1), CELL_SIZE * (MAP_HEIGHT - 1)};
 
 				break;
 			}
-			case 3:  //Esquina inferior izquierda.
+			case 3: // Esquina inferior izquierda.
 			{
 				target = {0, CELL_SIZE * (MAP_HEIGHT - 1)};
 			}
 			}
 		}
-		else // Modo persecución
+		else // Modo persecuciï¿½n
 		{
 			switch (id)
 			{
-			case 0: //fantasma rojo su objetivo es la posición actual de pacman
+			case 0: // fantasma rojo su objetivo es la posiciï¿½n actual de pacman
 			{
 				target = i_pacman_position;
 
 				break;
 			}
-			case 1: //fantasma rosa su objetivo es la cuarta celda delante de la dirección actual de Pacman
+			case 1: // fantasma rosa su objetivo es la cuarta celda delante de la direcciï¿½n actual de Pacman
 			{
 				target = i_pacman_position;
 
@@ -725,9 +798,9 @@ void Ghost::update_target(unsigned char i_pacman_direction, const Position &i_gh
 
 				break;
 			}
-			case 2: // fantasma azul objetivo es calcular una posición usando la posición de Pacman
-					// y la posición del fantasma rojo, creando un vector 
-			
+			case 2: // fantasma azul objetivo es calcular una posiciï¿½n usando la posiciï¿½n de Pacman
+					// y la posiciï¿½n del fantasma rojo, creando un vector
+
 				target = i_pacman_position;
 				switch (i_pacman_direction)
 				{
@@ -755,74 +828,83 @@ void Ghost::update_target(unsigned char i_pacman_direction, const Position &i_gh
 				}
 				}
 
-				//Enviar un vector desde el fantasma rojo a la segunda celda frente a Pacman.
+				// Enviar un vector desde el fantasma rojo a la segunda celda frente a Pacman.
 				target.x += target.x - i_ghost_0_position.x;
 				target.y += target.y - i_ghost_0_position.y;
 
 				break;
-			
-			case 3: // fantasma naranja objetivo es la posición de Pacman si esta lejos, si esta cerca se usa el teorema de pitagoras para calcular la distancia
+
+			case 3: // fantasma naranja objetivo es la posiciï¿½n de Pacman si esta lejos, si esta cerca se usa el teorema de pitagoras para calcular la distancia
 				if (CELL_SIZE * GHOST_3_CHASE <= sqrt(pow(position.x - i_pacman_position.x, 2) + pow(position.y - i_pacman_position.y, 2)))
 				{
 					target = i_pacman_position;
 				}
 				else
 				{
-					target = {0, CELL_SIZE * (MAP_HEIGHT - 1)}; //objetivo es la esquina inferior izquierda
+					target = {0, CELL_SIZE * (MAP_HEIGHT - 1)}; // objetivo es la esquina inferior izquierda
 				}
-			}
 			}
 		}
 	}
+}
 
-// Devuelve la posición del fantasma
-Position Ghost::get_position()const
+// Devuelve la posicion del fantasma
+Position Ghost::get_position() const
 {
 	return position;
 }
 
-//Ghost Manager
-GhostManager::GhostManager() :
-	current_wave(0), // Inicializa la oleada actual en 0
-	wave_timer(LONG_SCATTER_DURATION), // Inicializa el temporizador de oleada con la duración de dispersión larga
-	ghosts({Ghost(0), Ghost(1), Ghost(2), Ghost(3)}) // Crea cuatro fantasmas
+void Ghost::loadSounds()
 {
+	if (!bufferSound.loadFromFile("Recursos/Audio/ghost_sound.wav"))
+		throw std::runtime_error("Error loading ghost_sound.wav");
+	if (!bufferSoundClose.loadFromFile("Recursos/Audio/ghost_soundClose.wav"))
+		throw std::runtime_error("Error loading ghost_soundClose.wav");
 
+	soundSound.setBuffer(bufferSound);
+	soundSoundClose.setBuffer(bufferSoundClose);
+}
+
+// Ghost Manager
+GhostManager::GhostManager() : current_wave(0),									// Inicializa la oleada actual en 0
+							   wave_timer(LONG_SCATTER_DURATION),				// Inicializa el temporizador de oleada con la duraciï¿½n de dispersiï¿½n larga
+							   ghosts({Ghost(0), Ghost(1), Ghost(2), Ghost(3)}) // Crea cuatro fantasmas
+{
 }
 
 // Dibuja todos los fantasmas en la ventana
-void GhostManager::draw(bool i_flash, sf::RenderWindow& i_window)
+void GhostManager::draw(bool i_flash, sf::RenderWindow &i_window)
 {
-	for (Ghost& ghost : ghosts)
+	for (Ghost &ghost : ghosts)
 	{
 		ghost.draw(i_flash, i_window);
 	}
 }
 
 // Reinicia el estado de los fantasmas
-void GhostManager::reset(unsigned char i_level, const std::array<Position, 4>& i_ghost_positions)
+void GhostManager::reset(unsigned char i_level, const std::array<Position, 4> &i_ghost_positions)
 {
 	current_wave = 0;
 
-	// Aumenta la dificultad dividiendo la duración de dispersión larga por 2 elevado al nivel
+	// Aumenta la dificultad dividiendo la duraciï¿½n de dispersiï¿½n larga por 2 elevado al nivel
 	wave_timer = static_cast<unsigned short>(LONG_SCATTER_DURATION / pow(2, i_level));
 
-	// Coloca cada fantasma en su posición inicial
+	// Coloca cada fantasma en su posiciï¿½n inicial
 	for (unsigned char a = 0; a < 4; a++)
 	{
 		ghosts[a].set_position(i_ghost_positions[a].x, i_ghost_positions[a].y);
 	}
-	
-	for (Ghost& ghost : ghosts)
+
+	for (Ghost &ghost : ghosts)
 	{
-		// Usa la posición del fantasma azul ghosts[2] como la ubicación de la casa
+		// Usa la posiciï¿½n del fantasma azul ghosts[2] como la ubicaciï¿½n de la casa
 		// y la del fantasma rojo ghosts[0] como la salida
 		ghost.reset(ghosts[2].get_position(), ghosts[0].get_position());
 	}
 }
 
 // Actualiza el estado de los fantasmas
-void GhostManager::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH>& i_map, Pacman& i_pacman)
+void GhostManager::update(unsigned char i_level, std::array<std::array<Cell, MAP_HEIGHT>, MAP_WIDTH> &i_map, Pacman &i_pacman)
 {
 	if (0 == i_pacman.get_power_pellet_timer()) // No se actualiza el temporizador de oleada cuando Pacman ha tomado el power pellet
 	{
@@ -832,25 +914,24 @@ void GhostManager::update(unsigned char i_level, std::array<std::array<Cell, MAP
 			{
 				current_wave++;
 
-				for (Ghost& ghost : ghosts) // Cambia el modo de movimiento de cada fantasma
+				for (Ghost &ghost : ghosts) // Cambia el modo de movimiento de cada fantasma
 				{
 					ghost.switch_mode();
 				}
 			}
-			
-			// Ajusta el temporizador de oleada según las reglas
+
+			// Ajusta el temporizador de oleada segï¿½n las reglas
 			if (1 == current_wave % 2)
 			{
-				wave_timer = CHASE_DURATION; // duración de persecución
-
+				wave_timer = CHASE_DURATION; // duraciï¿½n de persecuciï¿½n
 			}
 			else if (2 == current_wave)
 			{
-				wave_timer = static_cast<unsigned short>(LONG_SCATTER_DURATION / pow(2, i_level)); // Duración de dispersión larga
+				wave_timer = static_cast<unsigned short>(LONG_SCATTER_DURATION / pow(2, i_level)); // Duraciï¿½n de dispersiï¿½n larga
 			}
 			else
 			{
-				wave_timer = static_cast<unsigned short>(SHORT_SCATTER_DURATION / pow(2, i_level)); // Duración de dispersión corta
+				wave_timer = static_cast<unsigned short>(SHORT_SCATTER_DURATION / pow(2, i_level)); // Duraciï¿½n de dispersiï¿½n corta
 			}
 		}
 		else
@@ -858,15 +939,15 @@ void GhostManager::update(unsigned char i_level, std::array<std::array<Cell, MAP
 			wave_timer--; // Decrementa el temporizador de oleada
 		}
 	}
-	
+
 	// Actualiza cada fantasma
-	for (Ghost& ghost : ghosts)
+	for (Ghost &ghost : ghosts)
 	{
 		ghost.update(i_level, i_map, ghosts[0], i_pacman);
 	}
-} 
+}
 
-void draw_text(bool i_center, unsigned short i_x, unsigned short i_y, const std::string& i_text, sf::RenderWindow& i_window)
+void draw_text(bool i_center, unsigned short i_x, unsigned short i_y, const std::string &i_text, sf::RenderWindow &i_window)
 {
 	short character_x = i_x;
 	short character_y = i_y;
@@ -884,7 +965,7 @@ void draw_text(bool i_center, unsigned short i_x, unsigned short i_y, const std:
 
 	if (1 == i_center)
 	{
-	
+
 		character_x = static_cast<short>(round(0.5f * (CELL_SIZE * MAP_WIDTH - character_width * i_text.substr(0, i_text.find_first_of('\n')).size())));
 		character_y = static_cast<short>(round(0.5f * (CELL_SIZE * MAP_HEIGHT - FONT_HEIGHT * (1 + std::count(i_text.begin(), i_text.end(), '\n')))));
 	}
@@ -895,7 +976,7 @@ void draw_text(bool i_center, unsigned short i_x, unsigned short i_y, const std:
 		{
 			if (1 == i_center)
 			{
-				
+
 				character_x = static_cast<short>(round(0.5f * (CELL_SIZE * MAP_WIDTH - character_width * i_text.substr(1 + a - i_text.begin(), i_text.find_first_of('\n', 1 + a - i_text.begin()) - (1 + a - i_text.begin())).size())));
 			}
 			else
@@ -909,7 +990,7 @@ void draw_text(bool i_center, unsigned short i_x, unsigned short i_y, const std:
 		}
 
 		character_sprite.setPosition(character_x, character_y);
-		
+
 		character_sprite.setTextureRect(sf::IntRect(character_width * (*a - 32), 0, character_width, FONT_HEIGHT));
 
 		character_x += character_width;
@@ -917,4 +998,3 @@ void draw_text(bool i_center, unsigned short i_x, unsigned short i_y, const std:
 		i_window.draw(character_sprite);
 	}
 }
-
